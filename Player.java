@@ -113,9 +113,9 @@ public class Player{
         // generate current & lookahead pieces
         ArrayList<int[][]> current;
         this.fitness = 0;
-        
+
         TetrisGraphic tg = new TetrisGraphic();
-        
+
         // while the game isn't over
         int gameOver = -1;
         while(gameOver != 1){
@@ -139,18 +139,18 @@ public class Player{
             if(board_states.size() > 0){
                 BoardState best_player = evaluateHeuristics(board_states);
                 board.drop_piece(best_player.getPiece(), best_player.getCol());
-                
-                tg.updateGrid(board.getBoard());
-                
+
+                //tg.updateGrid(board.getBoard());
+
                 int rows_cleared = board.clear_rows();
                 fitness += rows_cleared;
-                
+
                 /*
                 board.print_tetris(board.getBoard());
                 System.out.println();
                 System.out.println();
                 */
-                
+
             }
             // the game is over
             else{
@@ -161,9 +161,9 @@ public class Player{
                 gameOver = 1;
             }
         }
-        
+
         tg.dispose();
-        
+
         return fitness;
     }
 
