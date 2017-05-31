@@ -35,14 +35,15 @@ public class Player{
         int height = 22;
         Piece pieces = new Piece();
 		
-		int sim = 1;
+		int sim = 10;
 		double avg_fitness = 0;
 		
 		for(int i = 0; i < sim; i++){
 			Board board = new Board(width, height);
 			avg_fitness += simulatePlayer(pieces, board, visualize);
 		}
-        return avg_fitness/sim;
+		avg_fitness = avg_fitness/sim;
+		return avg_fitness;
     }
 
     // get a random tetramino
@@ -156,8 +157,10 @@ public class Player{
             if(board_states.size() > 0){
                 BoardState best_player = evaluateHeuristics(board_states);
                 board.drop_piece(best_player.getPiece(), best_player.getCol());
-
-                //tg.updateGrid(board.getBoard());
+				
+				if(visualize.equals("on")){
+					tg.updateGrid(board.getBoard());
+				}
 
                 int rows_cleared = board.clear_rows();
                 switch(rows_cleared){
@@ -177,14 +180,6 @@ public class Player{
 						fitness += 0;
 						break;
 				}
-				//fitness += rows_cleared;
-
-                /*
-                board.print_tetris(board.getBoard());
-                System.out.println();
-                System.out.println();
-                */
-
             }
             // the game is over
             else{
@@ -195,9 +190,7 @@ public class Player{
                 gameOver = 1;
             }
         }
-
         tg.dispose();
-
         return fitness;
     }
 
@@ -211,12 +204,6 @@ public class Player{
         for(int i = 0; i < 4; i++){
             this.genome[i] = rand.nextDouble() * 2 - 1;
         }
-/*
-this.genome[0]=-0.51066;
-this.genome[1] = 0.760666;
-this.genome[2]= -0.35663;
-this.genome[3] = -.184483;
-*/
     }
 
     private BoardState evaluateHeuristics(ArrayList<BoardState> board_states){
@@ -318,6 +305,4 @@ this.genome[3] = -.184483;
         Player p = new Player(50000);
         p.simulate("off");
     }
-
-
 }

@@ -1,7 +1,7 @@
-PopSize: 50
+PopSize: 15
 NumberOfGenerations: 100
 SelectionType: Tournament
-TournameSize: 10
+TournameSize: 3
 Elites: 2
 MutationProbability: 0.1
 MutationRange: 0.2

@@ -29,7 +29,6 @@ public class TetrisEA{
         boolean best_found = false;
         double[] fitnesses = new double[pop_size];
         for(int i = 0; i < num_generations; i++){
-            System.out.println("Generation: " + i);
             fitnesses = new double[pop_size];
             int fitness_index = 0;
 
@@ -52,12 +51,14 @@ public class TetrisEA{
 
             // selection
             Player[] nextGeneration;
-            if(selection_type.equals("tournament")){
-                nextGeneration = tournamentSelection(pop, fitnesses);
-            }else{
-                nextGeneration = universalStochasticSampling(pop, fitnesses);
-            }
-
+			nextGeneration = tournamentSelection(pop, fitnesses);
+			
+			// sort pop by fitnesses & select elites
+			quickSort(pop, fitnesses);
+			for(int k = 0; k < elites; k++){
+				nextGeneration[k] = pop[k];
+			}
+			
             // mutation
             mutatePop(nextGeneration);
 
@@ -68,21 +69,25 @@ public class TetrisEA{
             pop = nextGeneration;
 
             double max = fitnesses[0];
+			int max_index = 0;
             for(int j = 1; j < fitnesses.length; j++){
               if(fitnesses[j] > max){
                 max = fitnesses[j];
+				max_index = i;
               }
             }
-            System.out.println(max);
-            
-			/*
+			Player best_so_far = pop[max_index];
+			best_so_far.simulate("on");
+			double[] g = best_so_far.getGenome();
+			
             double avg = 0;
             for(int s = 0; s < fitnesses.length; s++){
                 avg += fitnesses[s];
             }
             avg = avg / fitnesses.length;
-            System.out.println(avg);
-            */
+			
+			System.out.println(i + "," + max + "," + avg + "," + g[0] + "," + g[1] + "," + g[2] + "," + g[3]);
+			System.gc();
         }
 
         // if individual whose fitness doesn't exceed the max_fitness, select the one that is by far the best
@@ -95,23 +100,60 @@ public class TetrisEA{
                     bestPlayer = pop[i];
                 }
             }
-        }
-
-      /*  for(int i = 0; i < fitnesses.length; i++){
-            System.out.print(fitnesses[i] + " ");
-         }System.out.println(); */
-
+		}
+		
         double[] b = bestPlayer.getGenome();
-      //  System.out.println("Best Genome: [" + b[0] + "," + b[1] + "," + b[2] + "," + b[3] + "]");
-      //  System.out.println("Best Fitness: " + bestPlayer.getFitness());
-        //bestPlayer.simulate("on");
+		System.out.println("Best Genome: [" + b[0] + "," + b[1] + "," + b[2] + "," + b[3] + "]");
+		System.out.println("Best Fitness: " + bestPlayer.getFitness());
+        bestPlayer.simulate("on");
     }
-
+	
+	// sort pop by fitnesses
+	private static void quickSort(Player[] pop, double[] fitnesses){
+		quickSortHelper(pop, fitnesses, 0, pop.length-1);
+	}
+	
+	private static void quickSortHelper(Player[] pop, double[] fitnesses, int lo, int hi){
+		if(lo < hi){
+			int p = partition(pop, fitnesses, lo, hi);
+			quickSortHelper(pop, fitnesses, lo, p-1);
+			quickSortHelper(pop, fitnesses, p+1, hi);
+		}
+	}
+	
+	private static int partition(Player[] pop, double[] fitnesses, int lo, int hi){
+		double pivot = fitnesses[lo];
+		int wall = lo+1;
+		for(int i = lo+1; i <= hi; i++){
+			if(pivot < fitnesses[i]){
+				Player p_temp = pop[i];
+				pop[i] = pop[wall];
+				pop[wall] = p_temp;
+				
+				double f_temp = fitnesses[i];
+				fitnesses[i] = fitnesses[wall];
+				fitnesses[wall] = f_temp;
+				wall++;
+			}
+		}
+		--wall;
+		Player p_temp = pop[lo];
+		pop[lo] = pop[wall];
+		pop[wall] = p_temp;
+		
+		double f_temp = fitnesses[lo];
+		fitnesses[lo] = fitnesses[wall];
+		fitnesses[wall] = f_temp;
+		
+		return wall;
+	}
+	
     // crossover operator
-    public static void crossoverPop(Player[] pop){
+    private static void crossoverPop(Player[] pop){
         ArrayDeque<Player> queue = new ArrayDeque<Player>();
-        for(Player p : pop){
-            double prob = Math.random();
+		for(int i = elites; i < pop.length; i++){
+			Player p = pop[i];
+			double prob = Math.random();
             if(prob <= crossover_prob){
                 queue.offer(p);
             }
@@ -120,20 +162,21 @@ public class TetrisEA{
                 Player p2 = queue.poll();
                 p1.crossover(p2);
             }
-        }
+		}
     }
 
     // mutation operator
-    public static void mutatePop(Player[] pop){
-        for(Player p : pop){
-            double random = Math.random();
+    private static void mutatePop(Player[] pop){
+		for(int i = elites; i < pop.length; i++){
+			Player p = pop[i];
+			double random = Math.random();
             if(random <= mutation_prob){
                 p.mutate(mutation_range);
             }
-        }
+		}
     }
 
-    public static Player[] tournamentSelection(Player[] pop, double[] fitnesses){
+    private static Player[] tournamentSelection(Player[] pop, double[] fitnesses){
         Player[] nextGeneration = new Player[pop_size];
         int index = 0;
 
@@ -155,45 +198,6 @@ public class TetrisEA{
             nextGeneration[index++] = best_p;
         }
         return nextGeneration;
-    }
-
-    // proportional selection with universal stochastic sampling
-    public static Player[] universalStochasticSampling(Player[] pop, double[] fitnesses){
-        // total fitness of population
-        int total_fitness = 0;
-        for(int i = 0; i < fitnesses.length; i++){
-            total_fitness += fitnesses[i];
-        }
-
-        // distance between pointers on a roulette wheel
-        int p = total_fitness/pop_size;
-
-        // starting point := random number between 0 and p
-        Random random = new Random();
-        int start = random.nextInt(p+1);
-
-        // positions of pointers on a roulette wheel
-        int[] pointers = new int[pop_size];
-        for(int i = 0; i < pointers.length; i++){
-            pointers[i] = start + i*p;
-        }
-        return RWS(pop, fitnesses, pointers);
-    }
-
-    private static Player[] RWS(Player[] pop, double[] fitnesses, int[] pointers){
-        Player[] keep = new Player[pointers.length];
-        for(int i = 0; i < pointers.length; i++){
-            int p = pointers[i];
-            int running_sum = 0;
-
-            int index = 0;
-            while(running_sum < p){
-                running_sum += fitnesses[index];
-                index++;
-            }
-            keep[i] = pop[index];
-        }
-        return keep;
     }
 
     // randomly shuffle an array
