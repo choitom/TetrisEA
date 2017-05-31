@@ -25,7 +25,7 @@ public class Board {
         return this.board_states;
     }
 
-    public void simulateDrop(int[][] piece, int col){
+    public void simulateDrop(int[][] cur, int[][] next, int col1, int col2){
         // create a copy of board
         int[][] copy = new int[height][width];
         for(int i = 0; i < height; i++){
@@ -35,9 +35,10 @@ public class Board {
         }
 
         // simulate drop
-        int flag = drop_piece(piece, col);
-        if(flag == 1){
-            board_states.add(new BoardState(board, piece, col, width, height));
+        int flag1 = drop_piece(cur, col1);
+		int flag2 = drop_piece(next, col2);
+        if(flag1 == 1 && flag2 == 1){
+            board_states.add(new BoardState(board, cur, col1, width, height));
         }
 
         // set copy to the original board

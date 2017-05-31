@@ -27,15 +27,15 @@ public class TetrisEA{
         // for as many as number of generations or we find a solution that infinitely plays the tetris
         Player bestPlayer = null;
         boolean best_found = false;
-        int[] fitnesses = new int[pop_size];
+        double[] fitnesses = new double[pop_size];
         for(int i = 0; i < num_generations; i++){
             System.out.println("Generation: " + i);
-            fitnesses = new int[pop_size];
+            fitnesses = new double[pop_size];
             int fitness_index = 0;
 
             // simulate each player
             for(Player p : pop){
-                int fitness = p.simulate("off");
+                double fitness = p.simulate("off");
                 fitnesses[fitness_index++] = fitness;
                 if(fitness >= max_fitness){
                     System.out.println("Best Found");
@@ -44,7 +44,6 @@ public class TetrisEA{
                     break;
                 }
             }
-
 
             // if best individual found, terminate evolution
             if(best_found){
@@ -75,7 +74,8 @@ public class TetrisEA{
               }
             }
             System.out.println(max);
-            /*
+            
+			/*
             double avg = 0;
             for(int s = 0; s < fitnesses.length; s++){
                 avg += fitnesses[s];
@@ -133,7 +133,7 @@ public class TetrisEA{
         }
     }
 
-    public static Player[] tournamentSelection(Player[] pop, int[] fitnesses){
+    public static Player[] tournamentSelection(Player[] pop, double[] fitnesses){
         Player[] nextGeneration = new Player[pop_size];
         int index = 0;
 
@@ -143,7 +143,7 @@ public class TetrisEA{
 
             // pick first T_size individuals
             Player best_p = pop[0];
-            int best_f = fitnesses[0];
+            double best_f = fitnesses[0];
             for(int j = 1; j < T_size; j++){
                 if(fitnesses[j] > best_f){
                     best_f = fitnesses[j];
@@ -158,7 +158,7 @@ public class TetrisEA{
     }
 
     // proportional selection with universal stochastic sampling
-    public static Player[] universalStochasticSampling(Player[] pop, int[] fitnesses){
+    public static Player[] universalStochasticSampling(Player[] pop, double[] fitnesses){
         // total fitness of population
         int total_fitness = 0;
         for(int i = 0; i < fitnesses.length; i++){
@@ -180,7 +180,7 @@ public class TetrisEA{
         return RWS(pop, fitnesses, pointers);
     }
 
-    private static Player[] RWS(Player[] pop, int[] fitnesses, int[] pointers){
+    private static Player[] RWS(Player[] pop, double[] fitnesses, int[] pointers){
         Player[] keep = new Player[pointers.length];
         for(int i = 0; i < pointers.length; i++){
             int p = pointers[i];
@@ -197,10 +197,10 @@ public class TetrisEA{
     }
 
     // randomly shuffle an array
-    private static void shuffle(Player[] p, int[] f){
+    private static void shuffle(Player[] p, double[] f){
         int index;
         Player temp_p;
-        int temp_f;
+        double temp_f;
         Random random = new Random();
         for(int i = p.length-1; i > 0; i--){
             index = random.nextInt(i+1);

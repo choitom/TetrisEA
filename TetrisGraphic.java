@@ -20,7 +20,7 @@ public class TetrisGraphic {
     }
     
     public void dispose(){
-        frame.setVisible(false);
+		frame.dispose();
     }
     
     public void updateGrid(int[][] grid){
@@ -42,7 +42,7 @@ public class TetrisGraphic {
             }
         });
         try{
-            Thread.sleep(20);
+            Thread.sleep(0);
         }catch(InterruptedException e){
             e.printStackTrace();
         }

@@ -5,8 +5,6 @@ public class Player{
     private int max_fitness;
     private int fitness;
     private double[] genome;
-    private int[][] current_piece;
-    private int[][] look_ahead;
 
     public Player(int max_fitness){
         this.max_fitness = max_fitness;
@@ -32,12 +30,19 @@ public class Player{
     }
 
     // simulate a player's genome until it dies
-    public int simulate(String visualize){
+    public double simulate(String visualize){
         int width = 10;
         int height = 22;
         Piece pieces = new Piece();
-        Board board = new Board(width, height);
-        return simulatePlayer(pieces, board, visualize);
+		
+		int sim = 1;
+		double avg_fitness = 0;
+		
+		for(int i = 0; i < sim; i++){
+			Board board = new Board(width, height);
+			avg_fitness += simulatePlayer(pieces, board, visualize);
+		}
+        return avg_fitness/sim;
     }
 
     // get a random tetramino
@@ -111,7 +116,9 @@ public class Player{
 
     private int simulatePlayer(Piece pieces, Board board, String visualize){
         // generate current & lookahead pieces
-        ArrayList<int[][]> current;
+        ArrayList<int[][]> current = null;
+		ArrayList<int[][]> lookahead = null;
+		
         this.fitness = 0;
         
         TetrisGraphic tg = new TetrisGraphic();
@@ -121,15 +128,25 @@ public class Player{
         while(gameOver != 1){
 
             // get a new piece
-            current = getRandomPiece(pieces);
+			if(current == null){
+				current = getRandomPiece(pieces);
+				lookahead = getRandomPiece(pieces);
+			}else{
+				current = lookahead;
+				lookahead = getRandomPiece(pieces);
+			}
 
             // simulate all posible configurations for current piece for all columns
             board.initSimulation();
 
             for(int[][] c : current){
-                for(int i = 0; i < 10; i++){
-                    board.simulateDrop(c, i);
-                }
+				for(int[][] l : lookahead){
+					for(int i = 0; i < 10; i++){
+						for(int j = 0; j < 10; j++){
+							board.simulateDrop(c, l, i, j);
+						}
+					}	
+				}
             }
 
 
@@ -143,7 +160,24 @@ public class Player{
                 tg.updateGrid(board.getBoard());
                 
                 int rows_cleared = board.clear_rows();
-                fitness += rows_cleared;
+                switch(rows_cleared){
+					case 1:
+						fitness += 2;
+						break;
+					case 2:
+						fitness += 5;
+						break;
+					case 3:
+						fitness += 15;
+						break;
+					case 4:
+						fitness += 60;
+						break;
+					default:
+						fitness += 0;
+						break;
+				}
+				//fitness += rows_cleared;
                 
                 /*
                 board.print_tetris(board.getBoard());
