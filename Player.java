@@ -35,7 +35,7 @@ public class Player{
         int height = 22;
         Piece pieces = new Piece();
 
-		int sim = 10;
+		int sim = 5;
 		double avg_fitness = 0;
 
 		for(int i = 0; i < sim; i++){
