@@ -52,13 +52,13 @@ public class TetrisEA{
             // selection
             Player[] nextGeneration;
 			nextGeneration = tournamentSelection(pop, fitnesses);
-			
+
 			// sort pop by fitnesses & select elites
 			quickSort(pop, fitnesses);
 			for(int k = 0; k < elites; k++){
 				nextGeneration[k] = pop[k];
 			}
-			
+
             // mutation
             mutatePop(nextGeneration);
 
@@ -79,15 +79,15 @@ public class TetrisEA{
 			Player best_so_far = pop[max_index];
 			best_so_far.simulate("on");
 			double[] g = best_so_far.getGenome();
-			
+
             double avg = 0;
             for(int s = 0; s < fitnesses.length; s++){
                 avg += fitnesses[s];
             }
             avg = avg / fitnesses.length;
-			
+
 			System.out.println(i + "," + max + "," + avg + "," + g[0] + "," + g[1] + "," + g[2] + "," + g[3]);
-			System.gc();
+			//System.gc();
         }
 
         // if individual whose fitness doesn't exceed the max_fitness, select the one that is by far the best
@@ -101,18 +101,18 @@ public class TetrisEA{
                 }
             }
 		}
-		
+
         double[] b = bestPlayer.getGenome();
 		System.out.println("Best Genome: [" + b[0] + "," + b[1] + "," + b[2] + "," + b[3] + "]");
 		System.out.println("Best Fitness: " + bestPlayer.getFitness());
         bestPlayer.simulate("on");
     }
-	
+
 	// sort pop by fitnesses
 	private static void quickSort(Player[] pop, double[] fitnesses){
 		quickSortHelper(pop, fitnesses, 0, pop.length-1);
 	}
-	
+
 	private static void quickSortHelper(Player[] pop, double[] fitnesses, int lo, int hi){
 		if(lo < hi){
 			int p = partition(pop, fitnesses, lo, hi);
@@ -120,7 +120,7 @@ public class TetrisEA{
 			quickSortHelper(pop, fitnesses, p+1, hi);
 		}
 	}
-	
+
 	private static int partition(Player[] pop, double[] fitnesses, int lo, int hi){
 		double pivot = fitnesses[lo];
 		int wall = lo+1;
@@ -129,7 +129,7 @@ public class TetrisEA{
 				Player p_temp = pop[i];
 				pop[i] = pop[wall];
 				pop[wall] = p_temp;
-				
+
 				double f_temp = fitnesses[i];
 				fitnesses[i] = fitnesses[wall];
 				fitnesses[wall] = f_temp;
@@ -140,14 +140,14 @@ public class TetrisEA{
 		Player p_temp = pop[lo];
 		pop[lo] = pop[wall];
 		pop[wall] = p_temp;
-		
+
 		double f_temp = fitnesses[lo];
 		fitnesses[lo] = fitnesses[wall];
 		fitnesses[wall] = f_temp;
-		
+
 		return wall;
 	}
-	
+
     // crossover operator
     private static void crossoverPop(Player[] pop){
         ArrayDeque<Player> queue = new ArrayDeque<Player>();

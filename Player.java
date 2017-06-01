@@ -34,10 +34,10 @@ public class Player{
         int width = 10;
         int height = 22;
         Piece pieces = new Piece();
-		
+
 		int sim = 10;
 		double avg_fitness = 0;
-		
+
 		for(int i = 0; i < sim; i++){
 			Board board = new Board(width, height);
 			avg_fitness += simulatePlayer(pieces, board, visualize);
@@ -119,7 +119,7 @@ public class Player{
         // generate current & lookahead pieces
         ArrayList<int[][]> current = null;
 		ArrayList<int[][]> lookahead = null;
-		
+
         this.fitness = 0;
 
         TetrisGraphic tg = new TetrisGraphic();
@@ -146,7 +146,7 @@ public class Player{
 						for(int j = 0; j < 10; j++){
 							board.simulateDrop(c, l, i, j);
 						}
-					}	
+					}
 				}
             }
 
@@ -157,7 +157,7 @@ public class Player{
             if(board_states.size() > 0){
                 BoardState best_player = evaluateHeuristics(board_states);
                 board.drop_piece(best_player.getPiece(), best_player.getCol());
-				
+
 				if(visualize.equals("on")){
 					tg.updateGrid(board.getBoard());
 				}

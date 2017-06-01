@@ -2,8 +2,8 @@ PopSize: 15
 NumberOfGenerations: 100
 SelectionType: Tournament
 TournameSize: 3
-Elites: 2
+Elites: 1
 MutationProbability: 0.1
 MutationRange: 0.2
 CrossoverProbability: 0.3
-MaxFitness: 100000
+MaxFitness: 1000
